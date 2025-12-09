@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAN Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: rgba(31, 41, 55, 0.7);
+            --text: #f3f4f6;
+            --text-sub: #9ca3af;
+            --matrix: #06b6d4;
+            --primary: #8b5cf6;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        h1,
+        h2 {
+            margin: 0;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--matrix);
+        }
+
+        .stat-label {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--matrix);
+        }
+    </style>
+</head>
+
+<body>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <h1>Admin Dashboard 🛡️</h1>
+            <div style="color:var(--text-sub);">Server Control Center</div>
+        </div>
+        <button class="btn" onclick="window.location.href='/'">Exit to App</button>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid">
+        <div class="glass-panel">
+            <div class="stat-label">Total Traffic</div>
+            <div class="stat-value" id="total-traffic">0 MB</div>
+        </div>
+        <div class="glass-panel">
+            <div class="stat-label">Active Users</div>
+            <div class="stat-value" id="active-users">0</div>
+        </div>
+        <div class="glass-panel">
+            <div class="stat-label">Storage Used</div>
+            <div class="stat-value" id="storage-used">0 GB</div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- Live Traffic Chart -->
+        <div class="glass-panel" style="grid-column: span 2;">
+            <h2>Live Traffic (MB/s)</h2>
+            <canvas id="trafficChart" style="height: 300px; width:100%;"></canvas>
+        </div>
+
+        <!-- Controls -->
+        <div class="glass-panel">
+            <h2>Server Settings</h2>
+            <div style="margin-top: 20px;">
+                <label>Max Upload Size (GB)</label>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="range" min="1" max="50" value="16"
+                        oninput="document.getElementById('size-val').innerText=this.value+' GB'">
+                    <span id="size-val">16 GB</span>
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <label>Speed Limit (MB/s)</label>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="range" min="0" max="100" value="0"
+                        oninput="document.getElementById('speed-val').innerText=(this.value==0?'Unlimited':this.value+' MB/s')">
+                    <span id="speed-val">Unlimited</span>
+                </div>
+            </div>
+            <button class="btn" style="width:100%; margin-top:20px;" onclick="saveConfig()">Save Settings</button>
+            <button class="btn btn-danger" style="width:100%; margin-top:10px;" onclick="killServer()">🛑 KILL
+                SERVER</button>
+        </div>
+
+    </div>
+    </div>
+    </div>
+
+    <!-- Active Sessions -->
+    <div class="glass-panel" style="margin-top: 2rem;">
+        <h2>Active Sessions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>IP Address</th>
+                    <th>Device</th>
+                    <th>Last Action</th>
+                    <th>Controls</th>
+                </tr>
+            </thead>
+            <tbody id="session-table">
+                <!-- JS populated -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Init Chart
+        const ctx = document.getElementById('trafficChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(10).fill(''),
+                datasets: [{
+                    label: 'Traffic',
+                    data: Array(10).fill(0),
+                    borderColor: '#06b6d4',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)'
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+
+        function fetchStats() {
+            fetch('/api/admin/stats').then(r => r.json()).then(data => {
+                document.getElementById('total-traffic').innerText = data.total_traffic;
+                document.getElementById('active-users').innerText = data.active_users;
+                document.getElementById('storage-used').innerText = data.storage_used;
+
+                // Update Table
+                const tbody = document.getElementById('session-table');
+                tbody.innerHTML = '';
+                data.sessions.forEach(s => {
+                    tbody.innerHTML += `<tr>
+                        <td>${s.ip}</td>
+                        <td>${s.device}</td>
+                        <td>${s.last_action}</td>
+                        <td><button class="btn btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="blockIP('${s.ip}')">BLOCK</button></td>
+                    </tr>`;
+                });
+
+                // Update Chart
+                chart.data.datasets[0].data.push(data.current_speed);
+                chart.data.datasets[0].data.shift();
+                chart.update();
+            });
+        }
+
+        function blockIP(ip) {
+            if (confirm('Block IP ' + ip + '?')) {
+                fetch('/api/admin/block', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip: ip })
+                }).then(() => fetchStats());
+            }
+        }
+
+        function saveConfig() {
+            const size = document.querySelector('input[oninput*="size-val"]').value;
+            const speed = document.querySelector('input[oninput*="speed-val"]').value;
+
+            fetch('/api/admin/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ max_size_gb: size, speed_limit: speed })
+            }).then(() => alert('Settings Saved!'));
+        }
+
+        function killServer() {
+            if (confirm('Are you sure? This will STOP the server process.')) {
+                fetch('/api/control/kill_server', { method: 'POST' });
+            }
+        }
+
+        setInterval(fetchStats, 2000);
+        fetchStats();
+    </script>
+</body>
+
+</html>

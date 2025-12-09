@@ -1,0 +1,39 @@
+LAN File Share Application - User Guide
+=========================================
+
+1. STARTING THE APP
+-------------------
+Double-click on the "run_app.bat" file (create this handy script if you like) or open a terminal in this folder and type:
+    python app.py
+
+Keep the terminal window OPEN. If you close it, the server stops.
+
+2. CONNECTING YOUR PHONE
+------------------------
+Option A: Scan the QR Code
+    1. Look at the "QR Code" box on your computer screen (browser).
+    2. Open your phone's camera.
+    3. Scan the code to instantly open the file share page.
+
+Option B: Manual Connection
+    1. Connect your phone to the SAME Wi-Fi network as this PC.
+    2. Type the address shown on your PC screen (e.g., http://192.168.1.5:5000) into your phone's browser.
+
+3. SHARING FILES
+----------------
+To Upload (Send to PC):
+    1. Click "Choose File" on your phone or other device.
+    2. Select the photo or document.
+    3. Click "Upload". It will be saved to the "uploads" folder on your PC.
+
+To Download (Get from PC):
+    1. Put files into the "uploads" folder on your PC.
+    2. Refresh the page on your phone.
+    3. Click "Download" next to the file name.
+
+4. TROUBLESHOOTING
+------------------
+- "Site can't be reached" / "Connection timed out":
+    Check your Windows Firewall. You must allow "Python" to communicate on Private networks.
+- QR Code doesn't work:
+    Make sure both devices are on the exact same Wi-Fi. If using a hotspot, ensure data is allowed.
