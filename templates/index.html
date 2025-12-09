@@ -69,7 +69,8 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            animation: fadeOut 0.5s ease 2.0s forwards;
+            z-index: 9999;
+            /* animation removed for JS control */
         }
 
         .popup-title {
@@ -233,9 +234,15 @@
 
 <body>
     <div id="branding-popup">
-        <div>
-            <div class="popup-title">SYSTEM ONLINE</div>
-            <div style="text-align:center; color:white; letter-spacing: 2px;">CONNECTION ESTABLISHED</div>
+        <div style="text-align: center;">
+            <div class="popup-title">LAN-FILE-TUNNEL</div>
+            <div style="text-align:center; color:white; letter-spacing: 2px; margin-top: 10px;">SYSTEM ONLINE</div>
+            <div id="loading-countdown"
+                style="font-size: 5rem; font-weight: 700; color: var(--matrix); margin-top: 20px; text-shadow: 0 0 20px var(--matrix);">
+                4</div>
+            <div style="margin-top: 20px; font-size: 0.8rem; color: var(--text-sub); letter-spacing: 1px;">
+                DEVELOPED BY GAJJARKASHAYAP
+            </div>
         </div>
     </div>
 
@@ -307,6 +314,7 @@
                     style="background:var(--primary);">🛡️
                     Manage Server</button>
                 <button class="btn-action" onclick="pingDevices()">📡 Ping Devices</button>
+                <button class="btn-action" onclick="restartServer()" style="background:#eab308;">🔄 Restart</button>
                 <button class="btn-action" onclick="exitApp()" style="background:var(--danger);">❌ Exit App</button>
             </div>
             <!-- Toggle for PIN -->
@@ -582,6 +590,16 @@
             }
         }
 
+        function restartServer() {
+            if (confirm("Restart Server? Clients may disconnect briefly.")) {
+                fetch('/api/control/restart_server', { method: 'POST' })
+                    .then(() => {
+                        alert("Server is restarting... Page will reload in 5 seconds.");
+                        setTimeout(() => location.reload(), 5000);
+                    });
+            }
+        }
+
         // Media Player Logic
         function playMedia(filename, type) {
             const modal = document.getElementById('media-modal');
@@ -623,6 +641,26 @@
         }
 
 
+
+
+        // Loading Screen Countdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById('loading-countdown');
+            const popup = document.getElementById('branding-popup');
+            let count = 4;
+
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    el.innerText = count;
+                } else {
+                    clearInterval(timer);
+                    popup.style.transition = 'opacity 0.5s ease';
+                    popup.style.opacity = '0';
+                    setTimeout(() => popup.style.display = 'none', 500);
+                }
+            }, 1000);
+        });
     </script>
 </body>
 

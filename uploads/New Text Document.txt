@@ -1,5 +1,0 @@
-uploads/
-__pycache__/
-*.pyc
-metadata.json
-venv/

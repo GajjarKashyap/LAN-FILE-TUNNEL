@@ -16,7 +16,10 @@ from user_agents import parse
 import random
 import string
 import sqlite3
+import sqlite3
 from flask import g
+import webbrowser
+import threading
 
 # --- CONFIGURATION ---
 app = Flask(__name__)
@@ -210,13 +213,9 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        return redirect(request.url)
-    file = request.files['file']
-    if file.filename == '':
-        return redirect(request.url)
-    
-    if file:
+    # Helper to process a single file object
+    def process_file(file):
+        if file.filename == '': return False
         filename = secure_filename(file.filename)
         filename = get_unique_filename(filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -230,10 +229,28 @@ def upload_file():
             'time': datetime.now().strftime("%I:%M %p")
         }
         save_metadata(metadata)
-        
         log_activity(f"UPLOAD: {filename} from {request.remote_addr} ({device_type})")
-        socketio.emit('new_file', {'name': filename})
+        return filename
+
+    # Handle multiple files (key 'files') or single file (key 'file')
+    files = request.files.getlist('files')
+    single_file = request.files.get('file')
+    
+    uploaded_names = []
+
+    if files:
+        for f in files:
+            name = process_file(f)
+            if name: uploaded_names.append(name)
+    elif single_file:
+         name = process_file(single_file)
+         if name: uploaded_names.append(name)
+    
+    if uploaded_names:
+        socketio.emit('new_file', {'name': 'Batch Upload' if len(uploaded_names) > 1 else uploaded_names[0]})  
         return 'OK'
+    
+    return redirect(request.url)
 
 @app.route('/upload_folder', methods=['POST'])
 def upload_folder():
@@ -351,6 +368,22 @@ def kill_server():
         os._exit(0) # Force kill
     return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
 
+@app.route('/api/control/restart_server', methods=['POST'])
+def restart_server():
+    device_type, _ = get_device_info(request.user_agent.string)
+    if device_type == 'PC':
+        print("[!] RESTART COMMAND RECEIVED...")
+        socketio.emit('server_log', {'msg': '[SYSTEM] Server Restarting...'})
+        # Allow time for emission
+        def restart():
+            time.sleep(1)
+            sys.exit(5) # Exit code 5 triggers restart in batch file
+        
+        import threading
+        threading.Thread(target=restart).start()
+        return jsonify({'status': 'success'})
+    return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+
 # --- ADMIN ROUTES ---
 @app.route('/admin')
 def admin_panel():
@@ -463,5 +496,13 @@ if __name__ == '__main__':
         init_db()
 
     # HTTP Mode (No SSL)
+    # HTTP Mode (No SSL)
     print(f"[*] Server Starting on http://0.0.0.0:5000")
+    
+    def open_browser():
+        time.sleep(1.5)
+        webbrowser.open('http://localhost:5000')
+        
+    threading.Thread(target=open_browser).start()
+    
     socketio.run(app, host='0.0.0.0', port=5000, debug=False)
