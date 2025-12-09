@@ -49,9 +49,15 @@ pip install flask flask-socketio eventlet user-agents qrcode pillow
 
 ## 🖥️ Screenshots
 
-| **Admin Dashboard** | **Mobile Interface** |
+### 💻 PC / Admin Dashboard
+| Main Interface | File Transfer | Matrix Log |
+|:---:|:---:|:---:|
+| ![Main UI](screenshots/Screenshot%20(1).png) | ![Transfer](screenshots/Screenshot%20(2).png) | ![Log](screenshots/Screenshot%20(3).png) |
+
+### 📱 Mobile Interface
+| Mobile Upload | Remote Control |
 |:---:|:---:|
-| ![Dashboard](screenshots/dashboard.png) | ![Mobile](screenshots/mobile.png) |
+| ![Mobile UI](screenshots/Screenshot_20251209_203649.jpg) | ![Controls](screenshots/Screenshot_20251209_203737.jpg) |
 
 ## 💻 Usage
 
@@ -120,5 +126,6 @@ Feel free to fork this project and submit Pull Requests\!
   * **ToDo:** Add Dark/Light mode toggle.
 
 **Created by [GajjarKashyap]**
+
 
 
