@@ -1,115 +1,142 @@
+Here is a professional, "Hacker-Style" **README.md** file for your GitHub repository.
+
+It highlights all the advanced features you built (Matrix Log, Remote Control, Clipboard) and provides clear instructions for anyone who wants to use it.
+
 -----
 
-````markdown
-# 🛡️ LAN-FILE-TUNNEL (Silent Count)
-> **The Ultimate Local Network Hub:** High-Speed File Transfer, Remote Administration & Universal Clipboard.
+### 📝 **How to use this:**
 
-![Python](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python)
-![Flask](https://img.shields.io/badge/Flask-SocketIO-lightgrey?style=for-the-badge&logo=flask)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Android%20%7C%20iOS-green?style=for-the-badge)
+1.  Create a file named **`README.md`** in your project folder.
+2.  Paste the text below into it.
+3.  Run `git add README.md`, `git commit -m "Add documentation"`, and `git push`.
 
-**LAN-FILE-TUNNEL** is a robust, self-hosted web application that transforms your PC into a local server. Transfer files at Wi-Fi speeds, sync your clipboard across devices, and control your host PC remotely—all without an internet connection.
+-----
 
----
+# 📂 LAN-FILE-TUNNEL (Silent Count)
 
-## ⚡ Key Features
+> **A high-speed, local HTTP file transfer system with remote command capabilities.** \> *Transfer files, sync clipboards, and control your PC from any device on your Wi-Fi—no internet required.*
 
-### 🚀 High-Performance Transfer
-* **Zero Internet Required:** Uses your local Wi-Fi bandwidth for maximum speed.
-* **Batch & Folder Uploads:** Drag and drop entire folders or multiple files at once.
-* **One-Click ZIP Download:** Download specific files or zip the entire server storage instantly.
-* **Resume Capability:** Handles large file transfers with stability.
+## ⚡ Features
 
-### 🛡️ "Cyber" Command Center
-* **Matrix Traffic Monitor:** A live, scrolling terminal log showing real-time server activity, IP connections, and requests.
-* **Remote PC Control:**
-    * 🔒 **Lock Workstation:** Secure your PC instantly from your phone (Windows only).
-    * 🛑 **Remote Shutdown:** Turn off the host machine remotely.
-    * 📡 **Device Ping:** Send audio/vibration signals to find connected devices.
-* **Security:** PIN-based authentication ensures only you can execute remote commands.
+### 🚀 Core Functionality
 
-### 📲 Universal Clipboard & Media
-* **Real-Time Sync:** Copy text on your PC and paste it on your phone instantly (and vice-versa).
-* **In-Browser Streaming:** Watch videos (`.mp4`, `.mkv`) or listen to music (`.mp3`) directly in the browser without downloading.
+  * **High-Speed Transfer:** Transfer files directly over LAN (Wi-Fi) without using mobile data.
+  * **Cross-Platform:** Works on Android, iOS, Windows, Linux, and MacOS via any web browser.
+  * **Batch Uploads:** Upload single files or entire folders with a progress bar.
+  * **Instant Download:** Download files individually or zip the entire server storage on the fly.
 
-### 📊 Admin Dashboard
-* **Live Analytics:** Visual graphs for upload/download speeds and traffic consumption.
-* **User Management:** View active sessions, identify device types, and block specific IP addresses.
-* **Server Config:** Adjust speed limits and max file size caps on the fly.
+### 🛡️ "Cyber" Utilities
 
----
+  * **Matrix Traffic Monitor:** A live, scrolling terminal log on the web interface showing all server activity (IPs, Uploads, Requests).
+  * **Remote Command Center:**
+      * 🔒 **Lock PC:** Instantly lock the host computer from your phone.
+      * 🛑 **Shutdown:** Remotely shut down the host server.
+      * 🔔 **Ping:** Send a signal to locate connected devices.
+  * **Universal Clipboard:** A real-time synchronized text box. Copy text on your PC, paste it on your phone instantly.
+  * **QR Code Connect:** Auto-generates a QR code for instant mobile connection.
 
-## 📸 Screenshots
+-----
 
-| **Admin Dashboard** | **Mobile Client** |
-|:---:|:---:|
-| ![Dashboard](Fileshare/screenshots/Screenshot%20(2).png) | ![Mobile](Fileshare/screenshots/Screenshot_20251209_203649.jpg) |
-| *Real-time traffic graphs & settings* | *Dark mode UI & QR Connect* |
-
----
-
-## 🛠️ Installation & Setup
+## 🛠️ Installation
 
 ### Prerequisites
-* Python 3.x installed on the host machine.
-* A Wi-Fi network (Host and Client must be on the same network).
 
-### 1. Installation
-Clone the repository and install the dependencies:
+  * Python 3.x installed.
+  * A Windows PC (for Remote Control features) *[Optional - works on Linux without Remote Lock]*.
+
+### 1\. Clone the Repository
 
 ```bash
-git clone [https://github.com/YourUsername/LAN-FILE-TUNNEL.git](https://github.com/YourUsername/LAN-FILE-TUNNEL.git)
+git clone https://github.com/YOUR_USERNAME/LAN-FILE-TUNNEL.git
 cd LAN-FILE-TUNNEL
+```
+
+### 2\. Install Dependencies
+
+Run the following command to install the required libraries:
+
+```bash
 pip install flask flask-socketio eventlet user-agents qrcode pillow
-````
+```
 
-### 2\. Running the Server
+-----
 
-**Option A: The Easy Way (Windows)**
-Double-click `run_app.bat`. This script will:
+## 💻 Usage
 
-1.  Close existing browser instances (optional, for a clean start).
-2.  Launch the server.
-3.  Automatically open the Admin Dashboard.
+### Quick Start (Windows)
 
-**Option B: Manual Start (Terminal)**
+Double-click the **`run_app.bat`** file.  
+This will automatically:
+
+1.  Kill any old instances of the server.
+2.  Start the Python server.
+3.  Open the Admin Dashboard in your default browser.
+
+### Manual Start (Terminal)
 
 ```bash
 python app.py
 ```
 
-### 3\. Connecting Devices
+## 🖥️ Screenshots
 
-1.  Open the Admin Dashboard on your PC.
-2.  Scan the **QR Code** on the sidebar with your phone.
-3.  Or manually enter the IP address shown (e.g., `http://192.168.1.X:5000`).
+### 💻 PC / Admin Dashboard
+| Main Interface | File Transfer | Matrix Log |
+|:---:|:---:|:---:|
+| ![Main UI](screenshots/Screenshot%20(1).png) | ![Transfer](screenshots/Screenshot%20(2).png) | ![Log](screenshots/Screenshot%20(3).png) |
+
+### 📱 Mobile Interface
+| Mobile Upload | Remote Control |
+|:---:|:---:|
+| ![Mobile UI](screenshots/Screenshot_20251209_203649.jpg) | ![Controls](screenshots/Screenshot_20251209_203737.jpg) |
+
+### Connecting Devices
+
+1.  Ensure your Phone and PC are on the **same Wi-Fi network**.
+2.  Open the Admin Dashboard on your PC.
+3.  **Scan the QR Code** displayed on the sidebar with your phone.
+4.  *Alternatively:* Type the IP address shown (e.g., `http://192.168.1.5:5000`) into your mobile browser.
+
+-----
+
+## 🖥️ Screenshots
+
+| **Admin Dashboard** | **Mobile Interface** |
+|:---:|:---:|
+| *Matrix-style log, File Manager, and QR Code* | *Simple Upload/Download & Remote Controls* |
+
+*(You can add actual screenshots here later)*
 
 -----
 
 ## ⚙️ Configuration
 
-You can modify `app.py` or use the **Admin Dashboard** GUI to change these settings:
+You can adjust settings in `app.py`:
 
-  * **`UPLOAD_FOLDER`**: Directory where files are saved (Default: `uploads`).
-  * **`MAX_CONTENT_LENGTH`**: Maximum file size limit (Default: 16GB).
-  * **`REMOTE_PIN`**: The security PIN for remote shutdown/lock (Generated randomly on startup, viewable in Admin sidebar).
+```python
+# Change the Upload Folder Name
+app.config['UPLOAD_FOLDER'] = 'my_files'
 
------
-
-## 🤝 Connect & Support
-
-This project is maintained by **Gajjar Kashyap**.
-
-  * 📸 **Instagram:** [**@gajjar\_090**](https://www.instagram.com/gajjar_090?igsh=MW1oODN0aGUxdmtvaQ==)
-  * 🐙 **GitHub:** [Fork & Contribute](https://www.google.com/search?q=%23)
-
-> *Feel free to DM on Instagram for feature requests or support\!*
+# Change Max File Size (Default: 16GB)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 * 1024
+```
 
 -----
 
 ## ⚠️ Disclaimer
 
-This tool uses HTTP for maximum local speed. It is intended for **Private Home Wi-Fi** use. Do not use on public networks (airports, cafes) as data is not encrypted.
+This tool uses **HTTP** for maximum speed and compatibility. It is designed for **Home/Private Wi-Fi** use.
 
-```
-```
+  * **Do not** use this on public Wi-Fi (like airports or cafes) as data is not encrypted.
+  * **Remote Shutdown** is powerful—ensure only trusted devices have access.
+
+-----
+
+## 🤝 Contributing
+
+Feel free to fork this project and submit Pull Requests\!
+
+  * **ToDo:** Add Password Authentication.
+  * **ToDo:** Add Dark/Light mode toggle.
+
+**Created by Gajjar Kashayap**
