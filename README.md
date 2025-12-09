@@ -47,6 +47,12 @@ pip install flask flask-socketio eventlet user-agents qrcode pillow
 
 -----
 
+## 🖥️ Screenshots
+
+| **Admin Dashboard** | **Mobile Interface** |
+|:---:|:---:|
+| ![Dashboard](screenshots/dashboard.png) | ![Mobile](screenshots/mobile.png) |
+
 ## 💻 Usage
 
 ### Quick Start (Windows)
@@ -114,4 +120,5 @@ Feel free to fork this project and submit Pull Requests\!
   * **ToDo:** Add Dark/Light mode toggle.
 
 **Created by [GajjarKashyap]**
+
 
