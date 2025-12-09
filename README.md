@@ -1,18 +1,3 @@
-﻿# LAN-FILE-TUNNEL
-Here is a professional, "Hacker-Style" **README.md** file for your GitHub repository.
-
-It highlights all the advanced features you built (Matrix Log, Remote Control, Clipboard) and provides clear instructions for anyone who wants to use it.
-
------
-
-### 📝 **How to use this:**
-
-1.  Create a file named **`README.md`** in your project folder.
-2.  Paste the text below into it.
-3.  Run `git add README.md`, `git commit -m "Add documentation"`, and `git push`.
-
------
-
 # 📂 LAN-FILE-TUNNEL (Silent Count)
 
 > **A high-speed, local HTTP file transfer system with remote command capabilities.** \> *Transfer files, sync clipboards, and control your PC from any device on your Wi-Fi—no internet required.*
@@ -129,3 +114,4 @@ Feel free to fork this project and submit Pull Requests\!
   * **ToDo:** Add Dark/Light mode toggle.
 
 **Created by [GajjarKashyap]**
+
