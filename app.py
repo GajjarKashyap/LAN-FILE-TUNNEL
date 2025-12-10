@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify, send_file
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify, send_file, after_this_request
 from flask_socketio import SocketIO, emit
 import os
 import socket
@@ -310,10 +310,15 @@ def download_all():
         
         temp.close() # Close to allow reading
         
-        # Send from disk. Note: This leaves the file on disk. 
-        # Ideally we'd wrap this to delete after request, but let's stick to the requested fix for now 
-        # or improve it if possible without breaking the logic.
-        # The user's snippet returns send_file(temp.name...).
+        @after_this_request
+        def remove_file(response):
+            try:
+                os.remove(temp.name)
+            except Exception as e:
+                print(f"Error removing temp file: {e}")
+            return response
+
+        # Send from disk
         return send_file(temp.name, download_name='all_files.zip', as_attachment=True)
     except Exception as e:
         return str(e)

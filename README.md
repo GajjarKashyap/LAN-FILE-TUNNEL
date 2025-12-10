@@ -56,7 +56,7 @@ cd LAN-FILE-TUNNEL
 Run the following command to install the required libraries:
 
 ```bash
-pip install flask flask-socketio eventlet user-agents qrcode pillow
+pip install flask flask-socketio user-agents qrcode pillow
 ```
 
 -----
