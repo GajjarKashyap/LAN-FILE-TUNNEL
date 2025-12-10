@@ -86,6 +86,22 @@ python app.py
 |:---:|:---:|:---:|
 | ![Main UI](screenshots/Screenshot%20(1).png) | ![Transfer](screenshots/Screenshot%20(2).png) | ![Log](screenshots/Screenshot%20(3).png) |
 
+
+# 📂 LAN-FILE-TUNNEL (Silent Count)
+
+> **A high-speed, local HTTP file transfer system with remote command capabilities.**
+
+![Demo](screenshots/HOW-TO-RUN.gif)
+
+## ⚡ Features
+
+>**HOW TO USE ADMIN SIDE.**
+>
+
+![Demo](screenshots/admin.gif)
+
+
+
 ### 📱 Mobile Interface
 | Mobile Upload | Remote Control |
 |:---:|:---:|
@@ -141,3 +157,4 @@ Feel free to fork this project and submit Pull Requests\!
   * **ToDo:** Add Dark/Light mode toggle.
 
 **Created by Gajjar Kashayap**
+
