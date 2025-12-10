@@ -529,9 +529,13 @@
             xhr.upload.onprogress = (e) => {
                 const p = (e.loaded / e.total) * 100;
                 document.getElementById('upload-bar').style.width = p + '%';
+                // Fix: Update percentage text
+                document.getElementById('upload-percent').innerText = Math.round(p) + '%';
+
                 const now = Date.now();
                 if (now - prevTime > 500) {
-                    const speed = ((e.loaded - prevLoad) / (now - prevTime) / 1024 * 1000).toFixed(2);
+                    // Fix: Divide by 1024 twice for true MB/s ((bytes/ms)*1000 / 1024 / 1024)
+                    const speed = ((e.loaded - prevLoad) / (now - prevTime) * 1000 / 1024 / 1024).toFixed(2);
                     document.getElementById('upload-speed').innerText = speed + ' MB/s';
                     prevTime = now;
                     prevLoad = e.loaded;

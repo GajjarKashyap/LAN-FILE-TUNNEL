@@ -22,11 +22,16 @@ echo                                      [ DEVELOPED BY GAJJARKASHAYAP ]
 echo.
 echo -----------------------------------------------------------------------------------------------
 echo [SYSTEM] STARTING FILE TUNNEL...
-echo [SYSTEM] CLOSING BROWSERS (Cleaner Experience)...
-taskkill /F /IM chrome.exe >nul 2>&1
-taskkill /F /IM msedge.exe >nul 2>&1
-taskkill /F /IM brave.exe >nul 2>&1
+echo [SYSTEM] CLOSING BROWSERS (Skipped for safety)...
+rem Browsers will not be closed.
 echo -----------------------------------------------------------------------------------------------
+
+rem Check if flask is installed, if not, install dependencies
+python -c "import flask" 2>NUL
+if %errorlevel% neq 0 (
+    echo [SYSTEM] Installing Dependencies...
+    pip install flask flask-socketio user-agents qrcode pillow
+)
 
 echo [1/2] Launching Python Server...
 python app.py

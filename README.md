@@ -57,6 +57,7 @@ This will automatically:
 1.  Kill any old instances of the server.
 2.  Start the Python server.
 3.  Open the Admin Dashboard in your default browser.
+4.  **Pro Tip:** For frequent use, set a **Static IP** on your PC to keep the QR code address the same every day.
 
 ### Manual Start (Terminal)
 

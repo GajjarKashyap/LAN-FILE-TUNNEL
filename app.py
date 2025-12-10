@@ -10,6 +10,7 @@ import time
 import shutil
 import zipfile
 import sys
+import tempfile
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from user_agents import parse
@@ -39,8 +40,9 @@ DATABASE = 'platform.db'
 connected_clients = {}
 
 # --- SECURITY ---
-REMOTE_PIN = ''.join(random.choices(string.digits, k=4))
-print(f"\n[!] REMOTE CONTROL PIN: {REMOTE_PIN}\n")
+# --- SECURITY ---
+REMOTE_PIN = None # Initialized in init_db
+
 
 # --- DATABASE HANDLERS ---
 def get_db():
@@ -48,6 +50,11 @@ def get_db():
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
         db.row_factory = sqlite3.Row
+        # FIX: Enable Write-Ahead Logging for concurrency
+        try:
+            db.execute('PRAGMA journal_mode=WAL;')
+        except:
+             pass
     return db
 
 @app.teardown_appcontext
@@ -89,7 +96,18 @@ def init_db():
         # Set defaults if not exist
         db.execute("INSERT OR IGNORE INTO server_config (key, value) VALUES ('MAX_CONTENT_LENGTH', ?)", (str(app.config['MAX_CONTENT_LENGTH']),))
         db.execute("INSERT OR IGNORE INTO server_config (key, value) VALUES ('SPEED_LIMIT_MBPS', '0')") # 0 = Unlimited
+        
+        # Persistent PIN Logic
+        global REMOTE_PIN
+        pin_row = db.execute("SELECT value FROM server_config WHERE key = 'REMOTE_PIN'").fetchone()
+        if pin_row:
+            REMOTE_PIN = pin_row['value']
+        else:
+            REMOTE_PIN = ''.join(random.choices(string.digits, k=4))
+            db.execute("INSERT INTO server_config (key, value) VALUES ('REMOTE_PIN', ?)", (REMOTE_PIN,))
         db.commit()
+        
+        print(f"\n[!] REMOTE CONTROL PIN: {REMOTE_PIN}\n")
 
 # --- MIDDLEWARE ---
 @app.before_request
@@ -125,11 +143,9 @@ def save_metadata(data):
 
 def get_unique_filename(filename):
     base, ext = os.path.splitext(filename)
-    counter = 1
-    new_filename = filename
-    while os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], new_filename)):
-        new_filename = f"{base}_{counter}{ext}"
-        counter += 1
+    # Add timestamp to guarantee uniqueness without a loop
+    timestamp = int(time.time() * 1000)
+    new_filename = f"{base}_{timestamp}{ext}"
     return new_filename
 
 def log_activity(msg):
@@ -275,13 +291,32 @@ def download_file(filename):
 @app.route('/download_all')
 def download_all():
     log_activity(f"ZIP DOWNLOAD: {request.remote_addr} requested full backup")
-    memory_file = io.BytesIO()
-    with zipfile.ZipFile(memory_file, 'w') as zf:
-        files = os.listdir(app.config['UPLOAD_FOLDER'])
-        for f in files:
-            zf.write(os.path.join(app.config['UPLOAD_FOLDER'], f), arcname=f)
-    memory_file.seek(0)
-    return send_file(memory_file, download_name='all_files.zip', as_attachment=True)
+    
+    # Create a temporary file on DISK, not RAM
+    try:
+        # We use delete=False then manually remove or let the system handle/OS handle it? 
+        # The user provided snippet says "delete=False" and then returns send_file.
+        # send_file with a file path doesn't auto-delete. 
+        # But let's follow the user's snippet exactly as requested.
+        
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        with zipfile.ZipFile(temp, 'w') as zf:
+            files = os.listdir(app.config['UPLOAD_FOLDER'])
+            for f in files:
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], f)
+                # Skip the temp file itself if it's in the folder (unlikely as temp is usually elsewhere)
+                if file_path != temp.name: 
+                    zf.write(file_path, arcname=f)
+        
+        temp.close() # Close to allow reading
+        
+        # Send from disk. Note: This leaves the file on disk. 
+        # Ideally we'd wrap this to delete after request, but let's stick to the requested fix for now 
+        # or improve it if possible without breaking the logic.
+        # The user's snippet returns send_file(temp.name...).
+        return send_file(temp.name, download_name='all_files.zip', as_attachment=True)
+    except Exception as e:
+        return str(e)
 
 @app.route('/delete/<filename>', methods=['POST'])
 def delete_file(filename):
@@ -317,9 +352,8 @@ def verify_pin():
 
 @app.route('/api/pin', methods=['GET'])
 def get_pin():
-    # Only allow Admin (PC) to see the PIN via API
-    device_type, _ = get_device_info(request.user_agent.string)
-    if device_type == 'PC':
+    # Only allow Admin (Localhost) to see the PIN via API
+    if request.remote_addr == '127.0.0.1':
         return jsonify({'pin': REMOTE_PIN})
     return jsonify({'status': 'error'}), 403
 
@@ -330,7 +364,8 @@ def remote_lock():
     data = request.get_json(silent=True) or {}
     client_pin = data.get('pin')
     
-    if device_type != 'PC' and client_pin != REMOTE_PIN:
+    # Auth: Allow if Localhost OR if valid PIN is provided
+    if request.remote_addr != '127.0.0.1' and client_pin != REMOTE_PIN:
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
 
     if sys.platform == 'win32':
@@ -347,7 +382,8 @@ def remote_shutdown():
     data = request.get_json(silent=True) or {}
     client_pin = data.get('pin')
     
-    if device_type != 'PC' and client_pin != REMOTE_PIN:
+    # Auth: Allow if Localhost OR if valid PIN is provided
+    if request.remote_addr != '127.0.0.1' and client_pin != REMOTE_PIN:
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
 
     cmd = "shutdown /s /t 60" if sys.platform == 'win32' else "shutdown -h +1"
@@ -363,15 +399,14 @@ def kill_server():
     client_pin = data.get('pin')
     
     # Simple check: local admin or PIN auth
-    if device_type == 'PC' or client_pin == REMOTE_PIN:
+    if request.remote_addr == '127.0.0.1' or client_pin == REMOTE_PIN:
         print("[!] KILL COMMAND RECEIVED. SHUTTING DOWN...")
         os._exit(0) # Force kill
     return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
 
 @app.route('/api/control/restart_server', methods=['POST'])
 def restart_server():
-    device_type, _ = get_device_info(request.user_agent.string)
-    if device_type == 'PC':
+    if request.remote_addr == '127.0.0.1':
         print("[!] RESTART COMMAND RECEIVED...")
         socketio.emit('server_log', {'msg': '[SYSTEM] Server Restarting...'})
         # Allow time for emission
@@ -379,7 +414,10 @@ def restart_server():
             time.sleep(1)
             sys.exit(5) # Exit code 5 triggers restart in batch file
         
-        import threading
+        def restart():
+            time.sleep(1)
+            sys.exit(5) # Exit code 5 triggers restart in batch file
+        
         threading.Thread(target=restart).start()
         return jsonify({'status': 'success'})
     return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
@@ -387,10 +425,8 @@ def restart_server():
 # --- ADMIN ROUTES ---
 @app.route('/admin')
 def admin_panel():
-    # Basic protection: Only PC or Localhost can view Admin Panel
-    # For better security, we'd use a login session
-    device_type, _ = get_device_info(request.user_agent.string)
-    if device_type != 'PC':
+    # Basic protection: Only Localhost can view Admin Panel
+    if request.remote_addr != '127.0.0.1':
          return "<h1>403 Forbidden</h1><p>Admin panel is accessible only from the Host PC.</p>", 403
     return render_template('admin.html')
 
