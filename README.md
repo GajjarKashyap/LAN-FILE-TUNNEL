@@ -1,3 +1,17 @@
+Here is a professional, "Hacker-Style" **README.md** file for your GitHub repository.
+
+It highlights all the advanced features you built (Matrix Log, Remote Control, Clipboard) and provides clear instructions for anyone who wants to use it.
+
+-----
+
+### 📝 **How to use this:**
+
+1.  Create a file named **`README.md`** in your project folder.
+2.  Paste the text below into it.
+3.  Run `git add README.md`, `git commit -m "Add documentation"`, and `git push`.
+
+-----
+
 # 📂 LAN-FILE-TUNNEL (Silent Count)
 
 > **A high-speed, local HTTP file transfer system with remote command capabilities.** \> *Transfer files, sync clipboards, and control your PC from any device on your Wi-Fi—no internet required.*
@@ -65,6 +79,18 @@ This will automatically:
 python app.py
 ```
 
+## 🖥️ Screenshots
+
+### 💻 PC / Admin Dashboard
+| Main Interface | File Transfer | Matrix Log |
+|:---:|:---:|:---:|
+| ![Main UI](screenshots/Screenshot%20(1).png) | ![Transfer](screenshots/Screenshot%20(2).png) | ![Log](screenshots/Screenshot%20(3).png) |
+
+### 📱 Mobile Interface
+| Mobile Upload | Remote Control |
+|:---:|:---:|
+| ![Mobile UI](screenshots/Screenshot_20251209_203649.jpg) | ![Controls](screenshots/Screenshot_20251209_203737.jpg) |
+
 ### Connecting Devices
 
 1.  Ensure your Phone and PC are on the **same Wi-Fi network**.
@@ -114,5 +140,4 @@ Feel free to fork this project and submit Pull Requests\!
   * **ToDo:** Add Password Authentication.
   * **ToDo:** Add Dark/Light mode toggle.
 
-**Created by [GajjarKashyap]**
-
+**Created by Gajjar Kashayap**
